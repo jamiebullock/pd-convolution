@@ -1,0 +1,11 @@
+build/
+build-*/
+fixtures/
+*.pd_darwin
+*.pd_linux
+*.dll
+*.o
+*.a
+*.d
+
+/FFTConvolver/
