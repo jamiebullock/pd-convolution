@@ -1,0 +1,40 @@
+#N canvas 30 30 660 640 12;
+#X obj 20 15 convolution~;
+#X text 130 15 - convolve a signal with an impulse response;
+#X text 20 45 Convolves its input with an impulse response held in an
+array \, using a partitioned FFT so that a long response costs little
+more than a short one. There is no latency: a sample reaches the outlet
+in the block that took it in.;
+#X text 20 110 Creation: the array holding the impulse response \, and
+optionally the tail block size (a power of two \, 4096 by default).
+The tail block trades memory and the work done in one call against the
+cost of a long response.;
+#X obj 20 190 cnv 3 600 3 empty empty empty 8 12 0 14 -228856 -66577 0;
+#X text 20 205 Messages;
+#X text 30 230 set <array>;
+#X text 200 230 read the impulse response again \, from that array or
+from the one already named;
+#X text 30 275 clear;
+#X text 200 275 drop the tail still ringing and start the response again;
+#X obj 20 320 cnv 3 600 3 empty empty empty 8 12 0 14 -228856 -66577 0;
+#X text 20 335 An array is not watched \, so send set after writing
+one.;
+#N canvas 40 40 560 460 example 0;
+#X obj 20 20 loadbang;
+#X msg 20 55 \; ir 0 1;
+#X text 90 55 one sample at 1.0: the identity;
+#X obj 20 110 osc~ 220;
+#X obj 20 145 convolution~ ir;
+#X obj 20 180 output~;
+#X obj 320 110 table ir 4096;
+#X msg 320 60 set ir;
+#X text 20 240 Fill the array with a recorded space and the oscillator
+is heard in it. soundfiler reads a file into an array.;
+#X connect 0 0 1 0;
+#X connect 3 0 4 0;
+#X connect 4 0 5 0;
+#X connect 7 0 4 0;
+#X restore 20 380 pd example;
+#X text 20 420 See also: soundfiler \, tabread~;
+#X text 20 470 pd-convolution is zlib licensed. The convolution is
+FFTConvolver by HiFi-LoFi \, which is MIT.;
