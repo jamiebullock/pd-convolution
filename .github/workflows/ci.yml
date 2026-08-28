@@ -64,10 +64,25 @@ jobs:
           "PD_LIBRARY=$root/bin/pd.lib"  | Out-File -Append $env:GITHUB_ENV
 
       - name: Configure
-        run: cmake -S . -B build
+        shell: bash
+        run: |
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release)
+          if [ -n "${PD_INCLUDE_DIR:-}" ]; then
+            args+=(-DPD_INCLUDE_DIR="$PD_INCLUDE_DIR" -DPD_LIBRARY="$PD_LIBRARY")
+          fi
+          cmake "${args[@]}"
 
       - name: Build
         run: cmake --build build --config Release
 
       - name: Test
-        run: ctest --test-dir build -C Release --output-on-failure
+        run: ctest --test-dir build --build-config Release --output-on-failure
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: convolution-${{ matrix.os }}
+          path: |
+            build/convolution.pd_darwin
+            build/convolution.pd_linux
+            build/Release/convolution.dll
+          if-no-files-found: warn
