@@ -17,7 +17,7 @@ extern "C" {
 
 typedef enum {
     CV_OK = 0,
-    CV_ERR_ARGS,      /* a bad argument reached us */
+    CV_ERR_ARGS,
     CV_ERR_MEMORY
 } cv_error;
 
@@ -43,7 +43,7 @@ void cv_conv_process(cv_conv *c, const float *in, float *out, size_t len);
  * without rebuilding. */
 void cv_conv_reset(cv_conv *c);
 
-/* Length of the impulse response in use, in samples. */
+/* Gets the length of the impulse response in use, in samples. */
 size_t cv_conv_impulse_length(const cv_conv *c);
 
 #ifdef __cplusplus
