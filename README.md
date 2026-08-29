@@ -105,7 +105,8 @@ constant with a one-sample impulse response, which is the identity, so the
 value has to come back unchanged. Point it at a Pd with `-DPD_EXECUTABLE=` or
 the `PD` environment variable; without one the test skips rather than fails.
 
-CI builds and tests macOS, Linux and Windows.
+CI builds and tests macOS, Linux and Windows, and `main` takes changes
+through a pull request with those three green and a review.
 
 ## Structure
 
