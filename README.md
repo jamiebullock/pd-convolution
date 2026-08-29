@@ -9,16 +9,14 @@ built on [FFTConvolver](https://github.com/HiFi-LoFi/FFTConvolver).
 
 ## Why
 
-Convolving a signal with a recorded space is how a convolution reverb works,
-and nothing in vanilla Pd does it: `[rfft~]` and friends can be arranged into a
-partitioned convolution, but the object count grows with the length of the
-response and the arithmetic runs as a separate pass over memory per partition.
-Measured against this external, three different vanilla arrangements of the
-same algorithm all came out around forty times more expensive.
+Implementing partitioned convolution in vanilla Pd is possible but prohibitively expensive.
+The object count grows with the length of the response and the arithmetic needs to run as a
+separate pass over memory per partition. For a six second impulse response a vanilla
+implementation measured around a hundred times slower than this external.
 
-The response is convolved in two stages: a head block the size of Pd's own
+In the external, the response is convolved in two stages: a head block the size of Pd's own
 block, and a larger tail block. The head gives the latency and the tail gives
-the efficiency, so a six second impulse response costs little more than a
+the efficiency, so a six-second impulse response costs little more than a
 one second one.
 
 ## Using it
@@ -47,13 +45,10 @@ outlet in the block that took it in.
 
 Rules:
 
-- An array is not watched, so send `set` after writing one. `[soundfiler]`
-  reads a file into an array.
-- An empty or missing array is silence, not an error to recover from: the
-  object keeps working and goes quiet.
-- Any impulse response length works, including one shorter than a block.
-- Reading an impulse response allocates, so it belongs where a file load
-  belongs and not in the middle of a performance. Convolving allocates nothing.
+- The array is not watched, so the external needs a fresh set message when the array content changes.
+- An empty array produces silence, a missing array is an error.
+- Any impulse response length is supported, including one shorter than a block.
+- Reading an impulse response allocates memory, so it should not be done during live usage. Convolving allocates nothing.
 - A change of block size rebuilds the convolver and reads the array again.
 
 ## Building
@@ -96,7 +91,8 @@ followed.
 
 ## Testing
 
-`tests/test_core.c` runs the core under greatest, without Pd: an impulse in
+`tests/test_core.c` runs the core under
+[greatest](https://github.com/silentbicycle/greatest), without Pd: an impulse in
 must give the impulse response back, at every length from one sample upward,
 including lengths that are not a whole number of blocks.
 
