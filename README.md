@@ -24,14 +24,11 @@ one second one.
 ## Using it
 
 ```pd
-[declare -lib convolution]
-```
-
-or start Pd with `-lib convolution`.
-
-```pd
 [convolution~ <array> <tail-block>]
 ```
+
+One class, so there is nothing to load: Pd finds the external when a patch
+asks for the object, as long as it is on the search path.
 
 The array holds the impulse response. `tail-block` is a power of two, 4096 by
 default; it trades memory and the work done in a single call against the cost
@@ -91,7 +88,7 @@ cmake --install build --prefix ~/Documents/Pd/externals
 ```
 
 Writes a `convolution/` directory holding the external, the help patch and the
-meta patch. [deken](https://github.com/pure-data/deken) package layout is
+meta patch, which is the layout Pd expects for a directory on its search path. [deken](https://github.com/pure-data/deken) package layout is
 followed.
 
 ## Testing
@@ -114,7 +111,6 @@ through a pull request with all three jobs passing and a review.
 src/convolution_core.h      convolving a signal with an impulse response
 src/convolution_core.cpp    the core, over FFTConvolver's two stage convolver
 src/convolution_tilde.c     the [convolution~] class: inlets, outlet, DSP
-src/convolution_setup.c     the library setup
 ```
 
 The core includes no Pd header, so the tests can have it without one. It is the

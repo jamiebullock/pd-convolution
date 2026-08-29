@@ -116,18 +116,18 @@ else()
     set(PD_EXTENSION ".pd_linux")
 endif()
 
-add_library(convolution MODULE
-    src/convolution_tilde.c
-    src/convolution_setup.c)
+# One class, so a plain external rather than a library: Pd translates the ~ in
+# [convolution~] to _tilde and loads convolution~.pd_darwin looking for
+# convolution_tilde_setup, which is what the class already exports. Nothing has
+# to be added to a search path or declared in a patch.
+add_library(convolution MODULE src/convolution_tilde.c)
 
 target_link_libraries(convolution PRIVATE convolution_core)
 target_include_directories(convolution PRIVATE ${PD_INCLUDE_DIR})
-target_compile_definitions(convolution PRIVATE
-    CONVOLUTION_VERSION="${PROJECT_VERSION}")
 
 set_target_properties(convolution PROPERTIES
     PREFIX ""
-    OUTPUT_NAME "convolution"
+    OUTPUT_NAME "convolution~"
     SUFFIX "${PD_EXTENSION}"
     LINKER_LANGUAGE CXX)
 

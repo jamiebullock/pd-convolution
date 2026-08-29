@@ -27,6 +27,9 @@ EXPECTED = [
     "OUT: 0.5",
 ]
 
+# The external is found because the patch asks for [convolution~] and it is on
+# the search path, so there is no -lib to pass and nothing announces itself.
+
 UNEXPECTED = [
     "couldn't create",
     "no method for",
@@ -89,7 +92,6 @@ def main(argv):
         "-noaudio",
         "-stderr",
         "-path", extdir,
-        "-lib", "convolution",
         os.path.join(HERE, "smoke.pd"),
     ]
 
