@@ -118,8 +118,9 @@ endif()
 
 # One class, so a plain external rather than a library: Pd translates the ~ in
 # [convolution~] to _tilde and loads convolution~.pd_darwin looking for
-# convolution_tilde_setup, which is what the class already exports. Nothing has
-# to be added to a search path or declared in a patch.
+# convolution_tilde_setup, which is what the class already exports. The
+# external still has to be on Pd's search path; what it no longer needs is
+# -lib, or a declare in the patch.
 add_library(convolution MODULE src/convolution_tilde.c)
 
 target_link_libraries(convolution PRIVATE convolution_core)
