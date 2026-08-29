@@ -1,9 +1,4 @@
-/* convolution_core.cpp -- the core, over FFTConvolver's two stage convolver.
- *
- * Two stage rather than uniform: the head block gives the latency and the
- * tail block gives the efficiency, so a long impulse response costs little
- * more than a short one. Measured against a uniform partitioning of the same
- * response, a six second impulse costs about a thirteenth as much.
+/* convolution_core.cpp -- the core, wrapping FFTConvolver's two stage convolver.
  *
  * Part of pd-convolution
  *
@@ -21,18 +16,18 @@
 struct cv_conv {
     fftconvolver::TwoStageFFTConvolver convolver;
     std::vector<float> impulse;
-    size_t head_block;
-    size_t tail_block;
+    size_t head_block_size;
+    size_t tail_block_size;
 };
 
-cv_conv *cv_conv_new(size_t head_block, size_t tail_block)
+cv_conv *cv_conv_new(size_t head_block_size, size_t tail_block_size)
 {
-    if (head_block == 0 || tail_block < head_block) return NULL;
+    if (head_block_size == 0 || tail_block_size < head_block_size) return NULL;
 
     cv_conv *c = new (std::nothrow) cv_conv();
     if (!c) return NULL;
-    c->head_block = head_block;
-    c->tail_block = tail_block;
+    c->head_block_size = head_block_size;
+    c->tail_block_size = tail_block_size;
     return c;
 }
 
@@ -52,13 +47,13 @@ cv_error cv_conv_set_impulse(cv_conv *c, const float *ir, size_t len)
         return CV_ERR_MEMORY;
     }
 
-    /* An empty response is silence rather than an error: a patch that clears
-     * its array should go quiet, not stop working. */
+    /* An empty response produces silence */
     if (len == 0) {
         c->convolver.reset();
         return CV_OK;
     }
-    if (!c->convolver.init(c->head_block, c->tail_block, c->impulse.data(), len))
+    if (!c->convolver.init(c->head_block_size, c->tail_block_size,
+                           c->impulse.data(), len))
         return CV_ERR_MEMORY;
     return CV_OK;
 }
@@ -77,14 +72,11 @@ void cv_conv_reset(cv_conv *c)
 {
     if (!c) return;
 
-    /* TwoStageFFTConvolver::reset frees the transformed impulse response
-     * rather than only the state ringing through it, so clearing means
-     * building it again from the copy kept here. */
     if (c->impulse.empty()) {
         c->convolver.reset();
         return;
     }
-    c->convolver.init(c->head_block, c->tail_block,
+    c->convolver.init(c->head_block_size, c->tail_block_size,
                       c->impulse.data(), c->impulse.size());
 }
 
