@@ -12,7 +12,7 @@
 
 #include <string.h>
 
-#define CV_DEFAULT_TAIL_BLOCK 4096
+#define CV_DEFAULT_TAIL_BLOCK_SIZE 4096
 
 #if defined(_WIN32)
 #define CV_SETUP_ENTRY __declspec(dllexport)
@@ -27,7 +27,7 @@ typedef struct _convolution_tilde {
     t_float x_f;
     cv_conv *core;
     t_symbol *array;
-    int tail_block;
+    int tail_block_size;
     int core_block_size;
 } t_convolution_tilde;
 
@@ -96,7 +96,7 @@ static void convolution_tilde_dsp(t_convolution_tilde *x, t_signal **sp)
     const int n = sp[0]->s_n;
 
     if (n != x->core_block_size || !x->core) {
-        int tail = x->tail_block;
+        int tail = x->tail_block_size;
         if (tail < n) tail = n;
 
         /* The head block is the DSP block size, which is what leaves the
@@ -123,7 +123,7 @@ static void *convolution_tilde_new(t_symbol *s, int argc, t_atom *argv)
 
     x->core = NULL;
     x->array = &s_;
-    x->tail_block = CV_DEFAULT_TAIL_BLOCK;
+    x->tail_block_size = CV_DEFAULT_TAIL_BLOCK_SIZE;
     x->core_block_size = 0;
     x->x_f = 0;
 
@@ -131,7 +131,7 @@ static void *convolution_tilde_new(t_symbol *s, int argc, t_atom *argv)
         x->array = atom_getsymbol(&argv[0]);
     if (argc > 1) {
         const int tail = (int)atom_getfloat(&argv[1]);
-        if (tail > 0 && (tail & (tail - 1)) == 0) x->tail_block = tail;
+        if (tail > 0 && (tail & (tail - 1)) == 0) x->tail_block_size = tail;
         else pd_error(x, "convolution~: tail block must be a power of two");
     }
 

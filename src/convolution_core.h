@@ -23,11 +23,11 @@ typedef enum {
 
 typedef struct cv_conv cv_conv;
 
-/* head_block is the latency the caller is prepared to accept, in samples, and
- * is normally Pd's block size; tail_block is the size the rest of the impulse
- * response is convolved in, and trades memory and per-call work against the
- * cost of long responses. */
-cv_conv *cv_conv_new(size_t head_block, size_t tail_block);
+/* head_block_size is the latency the caller is prepared to accept, in
+ * samples, and is normally Pd's block size; tail_block_size is the size the
+ * rest of the impulse response is convolved in, and trades memory and
+ * per-call work against the cost of long responses. */
+cv_conv *cv_conv_new(size_t head_block_size, size_t tail_block_size);
 void cv_conv_free(cv_conv *c);
 
 /* Replaces the impulse response. An empty response leaves the convolver
