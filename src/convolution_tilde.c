@@ -14,8 +14,6 @@
 
 #define CV_DEFAULT_TAIL_BLOCK 4096
 
-/* Pd looks this symbol up by name after loading the external, and a Windows
- * DLL exports nothing it is not told to. */
 #if defined(_WIN32)
 #define CV_SETUP_ENTRY __declspec(dllexport)
 #else
