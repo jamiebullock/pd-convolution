@@ -1,4 +1,4 @@
-/* convolution_core.cpp -- the core, over FFTConvolver's two stage convolver.
+/* convolution_core.cpp -- the core, wrapping FFTConvolver's two stage convolver.
  *
  * Part of pd-convolution
  *

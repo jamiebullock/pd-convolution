@@ -1,13 +1,4 @@
-/* convolution_core.h -- convolving a signal with an impulse response. Includes
- * no Pd header, so the tests can have it without one.
- *
- * One thread owns a convolver. Pd runs messages and the perform routine on its
- * scheduler thread, and a libpd host has to serialise its calls the same way
- * libpd itself requires.
- *
- * cv_conv_set_impulse allocates and is not for the audio callback; process
- * allocates nothing. There is no latency: a sample reaches the output in the
- * call that took it in, provided len never exceeds the head block.
+/* convolution_core.h -- convolving a signal with an impulse response.
  *
  * Part of pd-convolution
  *
@@ -43,13 +34,13 @@ void cv_conv_free(cv_conv *c);
  * silent rather than failing. Allocates. */
 cv_error cv_conv_set_impulse(cv_conv *c, const float *ir, size_t len);
 
-/* Writes len samples of the convolution over out. in and out may be the same
- * buffer. Allocates nothing and takes no lock. */
+/* Writes len samples of the convolution to out. in and out may point to the same
+ * buffer. Lock and alloc free. */
 void cv_conv_process(cv_conv *c, const float *in, float *out, size_t len);
 
 /* Drops whatever is still ringing and starts the impulse response again.
- * Allocates, for the same reason cv_conv_set_impulse does: the convolver
- * underneath has no way to clear its state without rebuilding. */
+ * Allocates because the convolver implementation has no way to clear its state
+ * without rebuilding. */
 void cv_conv_reset(cv_conv *c);
 
 /* Length of the impulse response in use, in samples. */
