@@ -1,10 +1,5 @@
 /* convolution_core.cpp -- the core, over FFTConvolver's two stage convolver.
  *
- * Two stage rather than uniform: the head block gives the latency and the
- * tail block gives the efficiency, so a long impulse response costs little
- * more than a short one. Measured against a uniform partitioning of the same
- * response, a six second impulse costs about a thirteenth as much.
- *
  * Part of pd-convolution
  *
  * SPDX-FileCopyrightText: 2026 Jamie Bullock
@@ -52,8 +47,7 @@ cv_error cv_conv_set_impulse(cv_conv *c, const float *ir, size_t len)
         return CV_ERR_MEMORY;
     }
 
-    /* An empty response is silence rather than an error: a patch that clears
-     * its array should go quiet, not stop working. */
+    /* An empty response produces silence */
     if (len == 0) {
         c->convolver.reset();
         return CV_OK;
@@ -77,9 +71,6 @@ void cv_conv_reset(cv_conv *c)
 {
     if (!c) return;
 
-    /* TwoStageFFTConvolver::reset frees the transformed impulse response
-     * rather than only the state ringing through it, so clearing means
-     * building it again from the copy kept here. */
     if (c->impulse.empty()) {
         c->convolver.reset();
         return;

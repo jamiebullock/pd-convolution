@@ -18,15 +18,15 @@ static t_class *convolution_tilde_class;
 
 typedef struct _convolution_tilde {
     t_object obj;
-    t_float x_f;                /* the value a float on the signal inlet sets */
+    t_float x_f;
     cv_conv *core;
     t_symbol *array;
     int tail_block;
-    int block;                  /* the block size the core was built for */
+    int core_block_size;
 } t_convolution_tilde;
 
 /* Reads the named array into the convolver. Allocates, so it belongs on the
- * message thread, which is where Pd delivers set and where dsp runs. */
+ * message thread. */
 static void convolution_tilde_load(t_convolution_tilde *x)
 {
     if (!x->core || !x->array || x->array == &s_) return;
@@ -85,17 +85,16 @@ static t_int *convolution_tilde_perform(t_int *w)
     return (w + 5);
 }
 
-/* The head block is the DSP block size, which is what makes the convolution
- * latency free. A block size change means a new convolver, so the impulse
- * response is read again. */
 static void convolution_tilde_dsp(t_convolution_tilde *x, t_signal **sp)
 {
     const int n = sp[0]->s_n;
 
-    if (n != x->block || !x->core) {
+    if (n != x->core_block_size || !x->core) {
         int tail = x->tail_block;
         if (tail < n) tail = n;
 
+        /* The head block is the DSP block size, which is what leaves the
+         * convolution latency free. */
         cv_conv *fresh = cv_conv_new((size_t)n, (size_t)tail);
         if (!fresh) {
             pd_error(x, "convolution~: could not build for a block of %d", n);
@@ -103,7 +102,7 @@ static void convolution_tilde_dsp(t_convolution_tilde *x, t_signal **sp)
         }
         cv_conv_free(x->core);
         x->core = fresh;
-        x->block = n;
+        x->core_block_size = n;
         convolution_tilde_load(x);
     }
 
@@ -119,7 +118,7 @@ static void *convolution_tilde_new(t_symbol *s, int argc, t_atom *argv)
     x->core = NULL;
     x->array = &s_;
     x->tail_block = CV_DEFAULT_TAIL_BLOCK;
-    x->block = 0;
+    x->core_block_size = 0;
     x->x_f = 0;
 
     if (argc > 0 && argv[0].a_type == A_SYMBOL)
