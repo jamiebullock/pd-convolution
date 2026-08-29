@@ -14,6 +14,14 @@
 
 #define CV_DEFAULT_TAIL_BLOCK 4096
 
+/* Pd looks this symbol up by name after loading the external, and a Windows
+ * DLL exports nothing it is not told to. */
+#if defined(_WIN32)
+#define CV_SETUP_ENTRY __declspec(dllexport)
+#else
+#define CV_SETUP_ENTRY
+#endif
+
 static t_class *convolution_tilde_class;
 
 typedef struct _convolution_tilde {
@@ -139,7 +147,7 @@ static void convolution_tilde_free(t_convolution_tilde *x)
     cv_conv_free(x->core);
 }
 
-void convolution_tilde_setup(void)
+CV_SETUP_ENTRY void convolution_tilde_setup(void)
 {
     convolution_tilde_class = class_new(gensym("convolution~"),
         (t_newmethod)convolution_tilde_new, (t_method)convolution_tilde_free,
