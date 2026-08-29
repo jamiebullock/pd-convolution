@@ -16,7 +16,7 @@ implementation measured around a hundred times slower than this external.
 
 In the external, the response is convolved in two stages: a head block the size of Pd's own
 block, and a larger tail block. The head gives the latency and the tail gives
-the efficiency, so a six second impulse response costs little more than a
+the efficiency, so a six-second impulse response costs little more than a
 one second one.
 
 ## Using it
