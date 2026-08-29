@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Zlib
 
 cmake_minimum_required(VERSION 3.16)
-project(pd-convolution VERSION 1.0.0 LANGUAGES C CXX)
+project(pd-convolution VERSION 1.0.1 LANGUAGES C CXX)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
@@ -116,18 +116,19 @@ else()
     set(PD_EXTENSION ".pd_linux")
 endif()
 
-add_library(convolution MODULE
-    src/convolution_tilde.c
-    src/convolution_setup.c)
+# One class, so a plain external rather than a library: Pd translates the ~ in
+# [convolution~] to _tilde and loads convolution~.pd_darwin looking for
+# convolution_tilde_setup, which is what the class already exports. The
+# external still has to be on Pd's search path; what it no longer needs is
+# -lib, or a declare in the patch.
+add_library(convolution MODULE src/convolution_tilde.c)
 
 target_link_libraries(convolution PRIVATE convolution_core)
 target_include_directories(convolution PRIVATE ${PD_INCLUDE_DIR})
-target_compile_definitions(convolution PRIVATE
-    CONVOLUTION_VERSION="${PROJECT_VERSION}")
 
 set_target_properties(convolution PROPERTIES
     PREFIX ""
-    OUTPUT_NAME "convolution"
+    OUTPUT_NAME "convolution~"
     SUFFIX "${PD_EXTENSION}"
     LINKER_LANGUAGE CXX)
 
